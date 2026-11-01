@@ -23,6 +23,7 @@ export async function connectToMongoDB() {
 const connectMongoDb = await connectToMongoDB()
 const db = connectMongoDb.db('studio-space')
 const studioCollection = db.collection('studios')
+const bookingCollection = db.collection('bookings')
 
 app.get('/add-studio',async(req,res)=> {
   const result = await studioCollection.find({}).toArray()
@@ -40,6 +41,24 @@ app.get('/add-studio/:id',async(req,res) => {
   const result = await studioCollection.findOne(query)
   res.send(result)
 })
+
+// booking api
+
+app.post('/add-bookings',async(req,res)=>{
+  const data = req.body;
+  const result = await bookingCollection.insertOne(data)
+  res.send(result)
+})
+
+
+
+
+
+
+
+
+
+
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
