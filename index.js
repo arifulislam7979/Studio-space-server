@@ -35,6 +35,7 @@ app.post('/add-studio',async(req,res)=> {
   const result = await studioCollection.insertOne(data)
   res.send(result)
 })
+
 app.get('/add-studio/:id',async(req,res) => {
   const id = req.params.id
   const query = {_id: new ObjectId(id)}
@@ -42,13 +43,45 @@ app.get('/add-studio/:id',async(req,res) => {
   res.send(result)
 })
 
-// booking api
+
+app.get('/my-listings/:email',async(req,res)=> {
+  const email = req.params.email;
+  const query = {userEmail: email}
+  const result = await studioCollection.find(query).toArray()
+  res.send(result)
+})
+app.delete('/add-studio/:id',async(req,res)=> {
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  const result = await studioCollection.deleteOne(query)
+  res.send(result)
+})
+app.patch('/add-studio/:id',async(req,res)=> {
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  const updatedData = req.body;
+  const updateDoc = {
+    $set: {
+      ...updatedData
+    }
+  }
+  const result = await studioCollection.updateOne(query,updateDoc)
+  res.send(result)
+})
 
 app.post('/add-bookings',async(req,res)=>{
   const data = req.body;
   const result = await bookingCollection.insertOne(data)
   res.send(result)
 })
+
+
+// app.get('/my-bookings/:email',async(req,res)=> {
+//   const email = req.params.email;
+//   const query = {userEmail: email}
+//   const result = await bookingCollection.find(query).toArray()
+//   res.send(result)
+// })
 
 
 
