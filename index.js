@@ -26,9 +26,15 @@ const studioCollection = db.collection('studios')
 const bookingCollection = db.collection('bookings')
 
 app.get('/add-studio',async(req,res)=> {
-  const result = await studioCollection.find({}).toArray()
+  const {category} = req.query
+  let query = {}
+  if (category) {
+      query.category = category;
+    }
+  const result = await studioCollection.find(query).toArray()
   res.send(result)
 })
+
 app.get('/featured-studios',async(req,res)=> {
   const result = await studioCollection.find().sort({rating: -1}).limit(6).toArray()
   res.send(result)
