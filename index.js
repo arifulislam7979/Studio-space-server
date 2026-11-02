@@ -75,22 +75,28 @@ app.post('/add-bookings',async(req,res)=>{
   res.send(result)
 })
 
+app.get('/my-bookings/:email',async(req,res)=> {
+  const email = req.params.email;
+  const query = {userEmail: email}
+  const result = await bookingCollection.find(query).toArray()
+  res.send(result)
+})
 
-// app.get('/my-bookings/:email',async(req,res)=> {
-//   const email = req.params.email;
-//   const query = {userEmail: email}
-//   const result = await bookingCollection.find(query).toArray()
-//   res.send(result)
-// })
+app.patch('/cancel-booking/:id', async (req, res) => {
+  
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const updateData = req.body;
 
-
-
-
-
-
-
-
-
+    const updateDoc = {
+      $set: {
+        ...updateData
+      }
+    };
+    const result = await bookingCollection.updateOne(query, updateDoc);
+    res.send(result);
+  
+});
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
