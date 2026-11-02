@@ -29,10 +29,18 @@ app.get('/add-studio',async(req,res)=> {
   const result = await studioCollection.find({}).toArray()
   res.send(result)
 })
-
+app.get('/featured-studios',async(req,res)=> {
+  const result = await studioCollection.find().sort({rating: -1}).limit(6).toArray()
+  res.send(result)
+})
 app.post('/add-studio',async(req,res)=> {
   const data = req.body
-  const result = await studioCollection.insertOne(data)
+  const randomRating = Number((Math.random() *(5.0 - 4.5) + 4.5).toFixed(1))
+  const newStudioData = {
+    ...data,
+    rating: randomRating
+  }
+  const result = await studioCollection.insertOne(newStudioData)
   res.send(result)
 })
 
