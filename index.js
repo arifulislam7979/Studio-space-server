@@ -25,6 +25,28 @@ const db = connectMongoDb.db("studio-space");
 const studioCollection = db.collection("studios");
 const bookingCollection = db.collection("bookings");
 
+const verifyToken = async (req,res,next) => {
+  const authData = req.headers.authorization;
+
+  if(!authData) {
+    return res.status(401).send({msg: 'Unauthorized'})
+  }
+  const token = authData.split(' ')[1]
+  if(!token){
+    return res.status(401).send({msg: "Unauthorized!"})
+  }
+  const JWKS = createRemoteJWKSet(
+    new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
+  )
+  try{
+    const {payload} = await jwtVerify(token,JWKS);
+    next()
+  }catch(error){
+    return res.status(500).send({msg: 'Server Error'})
+  }
+
+}
+
 app.get("/add-studio", async (req, res) => {
   const { category } = req.query;
   let query = {};
@@ -43,7 +65,7 @@ app.get("/featured-studios", async (req, res) => {
     .toArray();
   res.send(result);
 });
-app.post("/add-studio", async (req, res) => {
+app.post("/add-studio",verifyToken, async (req, res) => {
   const data = req.body;
   const randomRating = Number((Math.random() * (5.0 - 4.5) + 4.5).toFixed(1));
   const newStudioData = {
@@ -54,26 +76,26 @@ app.post("/add-studio", async (req, res) => {
   res.send(result);
 });
 
-app.get("/add-studio/:id", async (req, res) => {
+app.get("/add-studio/:id",verifyToken, async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) };
   const result = await studioCollection.findOne(query);
   res.send(result);
 });
 
-app.get("/my-listings/:email", async (req, res) => {
+app.get("/my-listings/:email",verifyToken, async (req, res) => {
   const email = req.params.email;
   const query = { userEmail: email };
   const result = await studioCollection.find(query).toArray();
   res.send(result);
 });
-app.delete("/add-studio/:id", async (req, res) => {
+app.delete("/add-studio/:id",verifyToken, async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) };
   const result = await studioCollection.deleteOne(query);
   res.send(result);
 });
-app.patch("/add-studio/:id", async (req, res) => {
+app.patch("/add-studio/:id",verifyToken, async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) };
   const updatedData = req.body;
@@ -135,14 +157,14 @@ app.post("/add-bookings", async (req, res) => {
   });
 });
 
-app.get("/my-bookings/:email", async (req, res) => {
+app.get("/my-bookings/:email",verifyToken, async (req, res) => {
   const email = req.params.email;
   const query = { userEmail: email };
   const result = await bookingCollection.find(query).toArray();
   res.send(result);
 });
 
-app.patch("/cancel-booking/:id", async (req, res) => {
+app.patch("/cancel-booking/:id",verifyToken, async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) };
   const updateData = req.body;
@@ -163,3 +185,5 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+export default app
