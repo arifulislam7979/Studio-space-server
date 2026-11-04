@@ -28,7 +28,7 @@ const bookingCollection = db.collection("bookings");
 
 const verifyToken = async (req,res,next) => {
   const authData = req.headers.authorization;
-  
+
   if(!authData) {
     return res.status(401).send({msg: 'Unauthorized'})
   }
@@ -77,7 +77,7 @@ app.post("/add-studio",verifyToken, async (req, res) => {
   res.send(result);
 });
 
-app.get("/add-studio/:id",verifyToken, async (req, res) => {
+app.get("/add-studio/:id", async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) };
   const result = await studioCollection.findOne(query);
